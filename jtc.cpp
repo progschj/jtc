@@ -51,7 +51,7 @@ enum TokenType {
 const std::unordered_map<std::string, TokenType> keywords = {
     {"if", IF}, {"else", ELSE}, {"while", WHILE}, {"for", FOR},
     {"return", RETURN}, {"break", BREAK}, {"continue", CONTINUE},
-    {"function", FUNCTION},  {"nil", NIL}, {"expression", EXPRESSION},
+    {"function", FUNCTION}, {"nil", NIL}, {"expression", EXPRESSION},
     {"statement", STATEMENT}, {"eval", EVAL},
     {"parse_statement", PARSE_STATEMENT},
     {"parse_expression", PARSE_EXPRESSION}, {"global", GLOBAL},
@@ -251,11 +251,11 @@ struct Variadic : public ASTNode<Iter,R,F> {
     std::vector<std::shared_ptr<ASTNode<Iter,R,F>>> children;
     virtual std::shared_ptr<ASTNode<Iter,R,F>>& operator[](size_t i) { return children[i]; }
     virtual size_t size() const { return children.size(); }
-    virtual void inject_dependencies() { 
-        for(auto& child : children) { 
+    virtual void inject_dependencies() {
+        for(auto& child : children) {
             child->root = this->root;
             child->source = this->source;
-            child->tokens = this->tokens; 
+            child->tokens = this->tokens;
             child->inject_dependencies();
         }
     }
@@ -267,14 +267,14 @@ struct Ternary : public ASTNode<Iter,R,F> {
     std::array<std::shared_ptr<ASTNode<Iter,R,F>>, 3> children;
     virtual std::shared_ptr<ASTNode<Iter,R,F>>& operator[](size_t i) { return children[i]; }
     virtual size_t size() const { return children.size(); }
-    virtual void inject_dependencies() { 
-        for(auto& child : children) { 
+    virtual void inject_dependencies() {
+        for(auto& child : children) {
             child->root = this->root;
             child->source = this->source;
-            child->tokens = this->tokens; 
+            child->tokens = this->tokens;
             child->inject_dependencies();
         }
-    }    
+    }
 };
 
 template<class Iter, class R, class F>
@@ -283,11 +283,11 @@ struct Binary : public ASTNode<Iter,R,F> {
     std::array<std::shared_ptr<ASTNode<Iter,R,F>>, 2> children;
     virtual std::shared_ptr<ASTNode<Iter,R,F>>& operator[](size_t i) { return children[i]; }
     virtual size_t size() const { return children.size(); }
-    virtual void inject_dependencies() { 
-        for(auto& child : children) { 
+    virtual void inject_dependencies() {
+        for(auto& child : children) {
             child->root = this->root;
             child->source = this->source;
-            child->tokens = this->tokens; 
+            child->tokens = this->tokens;
             child->inject_dependencies();
         }
     }
@@ -299,11 +299,11 @@ struct Unary : public ASTNode<Iter,R,F> {
     std::array<std::shared_ptr<ASTNode<Iter,R,F>>, 1> children;
     virtual std::shared_ptr<ASTNode<Iter,R,F>>& operator[](size_t i) { return children[i]; }
     virtual size_t size() const { return children.size(); }
-    virtual void inject_dependencies() { 
-        for(auto& child : children) { 
+    virtual void inject_dependencies() {
+        for(auto& child : children) {
             child->root = this->root;
             child->source = this->source;
-            child->tokens = this->tokens; 
+            child->tokens = this->tokens;
             child->inject_dependencies();
         }
     }
@@ -315,14 +315,14 @@ struct Nullary : public ASTNode<Iter,R,F> {
     std::array<std::shared_ptr<ASTNode<Iter,R,F>>, 0> children;
     virtual std::shared_ptr<ASTNode<Iter,R,F>>& operator[](size_t i) { return children[i]; }
     virtual size_t size() const { return children.size(); }
-    virtual void inject_dependencies() { 
-        for(auto& child : children) { 
+    virtual void inject_dependencies() {
+        for(auto& child : children) {
             child->root = this->root;
             child->source = this->source;
-            child->tokens = this->tokens; 
+            child->tokens = this->tokens;
             child->inject_dependencies();
         }
-    }    
+    }
 };
 
 template<class Iter, class R, class F>
@@ -847,7 +847,7 @@ private:
         node->end = accepted+1;
         return std::move(node);
     }
-    
+
     return_t root() {
         std::shared_ptr<Root<Iter,R,F>> node(new Root<Iter,R,F>());
         node->begin = i;
@@ -859,18 +859,18 @@ private:
         node->end = accepted+1;
         return std::move(node);
     }
-    
+
     return_t eval() {
         std::shared_ptr<Eval<Iter,R,F>> node(new Eval<Iter,R,F>);
         node->begin = i;
         expect(EVAL);
         expect(LEFT_PAREN);
         node->children[0] = unary_expression();
-        expect(RIGHT_PAREN);         
+        expect(RIGHT_PAREN);
         node->end = accepted+1;
         return std::move(node);
     }
-    
+
     return_t type() {
         std::shared_ptr<Type<Iter,R,F>> node(new Type<Iter,R,F>());
         node->begin = i;
@@ -894,7 +894,7 @@ private:
         node->end = accepted+1;
         return std::move(node);
     }
-    
+
     return_t table_initializer() {
         std::shared_ptr<TableInitializer<Iter,R,F>> node(new TableInitializer<Iter,R,F>);
         node->begin = i;
@@ -1426,7 +1426,7 @@ template<class Iter, class F>
 struct Value {
     typedef std::string string_t;
     typedef string_t::iterator str_iter;
-    struct proto_string_t { 
+    struct proto_string_t {
         proto_string_t(str_iter begin, str_iter end)
         : begin(begin), end(end), hash(std::hash<string_t>()(string_t(begin, end)))
         { }
@@ -1453,7 +1453,7 @@ private:
         proto_string_t proto_str_;
     };
 public:
-    Type type() const { 
+    Type type() const {
         if(type_ == PROTO_STRING)
             return STRING;
         else if(type_>=RETURN && type_ <= CONTINUE)
@@ -1477,10 +1477,10 @@ public:
     const table_t& table() const { return table_; }
     table_t& table() { return table_; }
 
-    const string_t string() const { 
-        if(type_==PROTO_STRING) 
+    const string_t string() const {
+        if(type_==PROTO_STRING)
             return std::string(proto_str_.begin, proto_str_.end);
-        return str_; 
+        return str_;
     }
     string_t& string() { decay(); return str_; }
 
@@ -1508,7 +1508,7 @@ public:
     Value(const array_t &ptr) : type_(ARRAY), array_(ptr) { }
     Value(const string_t &str_) : type_(STRING), str_(str_) { }
     Value(str_iter begin, str_iter end) : type_(PROTO_STRING), proto_str_(begin, end) { }
-    
+
     Value(const Value &that) : type_(that.type_) {
         switch(type_) {
             case RETURN: case BREAK: case CONTINUE: case NIL:
