@@ -1,3 +1,6 @@
+// use jtc's introspection abilities to calculate symbolic derivatives
+// of simple functions.
+
 derive_expr = function(expr, var) {
     expansion = expand_node(expr);
     
