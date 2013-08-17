@@ -31,25 +31,25 @@ while(x < 1024) {
 print("\n");
 
 //no ++ or -- operators
-for(i = 0;i<size(arr);i+=1) { 
+for(i = 0;i<size(arr);i+=1) {
     print(arr[i], ", ");
 }
 print("\n");
 
 // for each syntax
-for(value : arr) { 
+for(value : arr) {
     print(value, ", ");
 }
 print("\n");
 
 // for each on tables has no specific order
-for(value : table) { 
+for(value : table) {
     print(value, ", ");
 }
 print("\n");
 
 // iterate over key value pairs
-for(key, value : table) { 
+for(key, value : table) {
     print(key," = ",value, ", ");
 }
 print("\n");
