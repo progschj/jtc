@@ -60,8 +60,8 @@ const std::unordered_map<std::string, TokenType> keywords = {
 
 template<class Iter>
 struct Token {
-    Token(TokenType type, Iter begin, Iter end)
-        : type(type), begin(begin), end(end) { }
+    Token(TokenType type_, Iter begin_, Iter end_)
+        : type(type_), begin(begin_), end(end_) { }
     const TokenType type;
     const Iter begin, end;
 };
@@ -1427,8 +1427,8 @@ struct Value {
     typedef std::string string_t;
     typedef string_t::iterator str_iter;
     struct proto_string_t {
-        proto_string_t(str_iter begin, str_iter end)
-        : begin(begin), end(end), hash(std::hash<string_t>()(string_t(begin, end)))
+        proto_string_t(str_iter begin_, str_iter end_)
+        : begin(begin_), end(end_), hash(std::hash<string_t>()(string_t(begin_, end_)))
         { }
         str_iter begin, end; size_t hash;
     };
@@ -1502,11 +1502,11 @@ public:
     Value(const return_tag&) : type_(RETURN), number_(0) { }
     Value(const break_tag&) : type_(BREAK), number_(0) { }
     Value(const continue_tag&) : type_(CONTINUE), number_(0) { }
-    Value(double number_) : type_(NUMBER), number_(number_) { }
+    Value(double value) : type_(NUMBER), number_(value) { }
     Value(Type t, const pointer_t &ptr) : type_(t), pointer_(ptr) { }
     Value(const table_t &ptr) : type_(TABLE), table_(ptr) { }
     Value(const array_t &ptr) : type_(ARRAY), array_(ptr) { }
-    Value(const string_t &str_) : type_(STRING), str_(str_) { }
+    Value(const string_t &value) : type_(STRING), str_(value) { }
     Value(str_iter begin, str_iter end) : type_(PROTO_STRING), proto_str_(begin, end) { }
 
     Value(const Value &that) : type_(that.type_) {
@@ -1692,13 +1692,13 @@ struct Interpreter {
     typedef Value<Iter,F> R;
 
     struct FunctionScope {
-        FunctionScope(Interpreter &ev) : ev(ev) { ev.beginFunctionScope(); }
+        FunctionScope(Interpreter &ev_) : ev(ev_) { ev.beginFunctionScope(); }
         ~FunctionScope() { ev.endFunctionScope(); }
         Interpreter &ev;
     };
 
     struct LocalScope {
-        LocalScope(Interpreter &ev) : ev(ev) { ev.beginLocalScope(); }
+        LocalScope(Interpreter &ev_) : ev(ev_) { ev.beginLocalScope(); }
         ~LocalScope() { ev.endLocalScope(); }
         Interpreter &ev;
     };
@@ -2461,16 +2461,16 @@ struct Interpreter {
                 for(auto entry : *table.table()) {
                     setLocal(value, entry.second);
                     R result = node.children[2]->accept(*this);
-                    typename R::Type t = result.internal_type();
-                    if(t == R::BREAK || t == R::RETURN)
+                    typename R::Type result_t = result.internal_type();
+                    if(result_t == R::BREAK || result_t == R::RETURN)
                         return result;
                 }
             } else {
                 for(auto entry : *table.array()) {
                     setLocal(value, entry);
                     R result = node.children[2]->accept(*this);
-                    typename R::Type t = result.type();
-                    if(t == R::BREAK || t == R::RETURN)
+                    typename R::Type result_t = result.type();
+                    if(result_t == R::BREAK || result_t == R::RETURN)
                         return result;
                 }
             }
