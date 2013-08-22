@@ -411,6 +411,11 @@ struct Call : public Variadic<Iter,R,F> {
 };
 
 template<class Iter, class R, class F>
+struct MemberCall : public Variadic<Iter,R,F> {
+    virtual R accept(F &f) { return f(*this); }
+};
+
+template<class Iter, class R, class F>
 struct EvalStatement : public Unary<Iter,R,F> {
     virtual R accept(F &f) { return f(*this); }
 };
@@ -1036,6 +1041,18 @@ private:
                     node->children[0] = std::move(left);
                     node->children[1] = std::move(right);
                     node->children[2] = expression();
+                    node->end = accepted+1;
+                    left = std::move(node);
+                } else if(accept(LEFT_PAREN)) {
+                    std::shared_ptr<MemberCall<Iter,R,F>> node(new MemberCall<Iter,R,F>());
+                    node->begin = from;
+                    node->children.push_back(std::move(left));
+                    node->children.push_back(std::move(right));
+                    while(!accept(RIGHT_PAREN)) {
+                        node->children.push_back(expression());
+                        if(!peek(RIGHT_PAREN))
+                            expect(COMMA);
+                    }
                     node->end = accepted+1;
                     left = std::move(node);
                 } else {
@@ -2307,6 +2324,8 @@ struct Interpreter {
     R operator()(IdentifierList<Iter,R,F> &node) {
         auto i = function_stack.begin();
         auto end = function_stack.end();
+
+        set(R("this"), *i++);
         for(auto child : node.children) {
             if(i==end) break;
             set(child->accept(*this), *i++);
@@ -2328,11 +2347,51 @@ struct Interpreter {
         }
         auto function = fun.function();
 
+        std::vector<R> args;
         for(size_t i = 1;i<node.children.size();++i)
-            function_stack.push_back(node.children[i]->accept(*this));
+            args.push_back(node.children[i]->accept(*this));
+
+        function_stack.push_back(R());
+        for(size_t i = 1;i<node.children.size();++i)
+            function_stack.push_back(args[i-1]);
 
         FunctionScope functionscope(*this);
 
+        function->children[0]->accept(*this);
+        function->children[1]->accept(*this);
+        if(!function_stack.empty()) {
+            R result = function_stack.back();
+            function_stack.clear();
+            return result;
+        } else {
+            return R();
+        }
+    }
+
+    R operator()(MemberCall<Iter,R,F> &node) {
+        R table = node.children[0]->accept(*this);
+
+        if(table.type() != R::TABLE) {
+            error("can only index tables.", node);
+            return R();
+        }
+        R name = node.children[1]->accept(*this);
+        R fun = table.table()->get(name);
+        if(fun.type() != R::FUNCTION) {
+            error("can not call non-function.", node);
+            return R();
+        }
+        auto function = fun.function();
+
+        std::vector<R> args;
+        for(size_t i = 2;i<node.children.size();++i)
+            args.push_back(node.children[i]->accept(*this));
+
+        function_stack.push_back(table);
+        for(size_t i = 2;i<node.children.size();++i)
+            function_stack.push_back(args[i-2]);
+
+        FunctionScope functionscope(*this);
         function->children[0]->accept(*this);
         function->children[1]->accept(*this);
         if(!function_stack.empty()) {
@@ -2587,8 +2646,9 @@ struct Interpreter {
 };
 
 void print(std::vector<Interpreter::R> &stack) {
-    for(auto arg : stack) {
-        std::cout << arg;
+
+    for(size_t i = 1;i<stack.size();++i) {
+        std::cout << stack[i];
     }
     stack.clear();
 }
@@ -2603,7 +2663,7 @@ void readline(std::vector<Interpreter::R> &stack) {
 void children(std::vector<Interpreter::R> &stack) {
     typedef Interpreter::R R;
     if(stack.empty()) return;
-    auto arg = stack[0];
+    auto arg = stack[1];
     R::Type t = arg.type();
     stack.clear();
     if(t == R::TREE || t == R::FUNCTION) {
@@ -2618,7 +2678,7 @@ void children(std::vector<Interpreter::R> &stack) {
 void tokens(std::vector<Interpreter::R> &stack) {
     typedef Interpreter::R R;
     if(stack.empty()) return;
-    auto arg = stack[0];
+    auto arg = stack[1];
     R::Type t = arg.type();
     stack.clear();
     if(t == R::TREE || t == R::FUNCTION) {
@@ -2634,7 +2694,7 @@ void tokens(std::vector<Interpreter::R> &stack) {
 void expand_node(std::vector<Interpreter::R> &stack) {
     typedef Interpreter::R R;
     if(stack.empty()) return;
-    auto arg = stack[0];
+    auto arg = stack[1];
     R::Type t = arg.type();
     stack.clear();
     if(t == R::TREE || t == R::FUNCTION) {
@@ -2658,7 +2718,7 @@ void expand_node(std::vector<Interpreter::R> &stack) {
 void tostring(std::vector<Interpreter::R> &stack) {
     typedef Interpreter::R R;
     if(stack.empty()) return;
-    auto arg = stack[0];
+    auto arg = stack[1];
     stack.clear();
     switch(arg.type()) {
         case R::TREE:
@@ -2682,7 +2742,7 @@ void tostring(std::vector<Interpreter::R> &stack) {
 void tonumber(std::vector<Interpreter::R> &stack) {
     typedef Interpreter::R R;
     if(stack.empty()) return;
-    auto arg = stack[0];
+    auto arg = stack[1];
     stack.clear();
     if(arg.type() == R::STRING) {
         double result = std::strtod(arg.string().c_str(), nullptr);
