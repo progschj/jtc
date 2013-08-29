@@ -4,6 +4,8 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <array>
+#include <functional>
 #include <unordered_map>
 #include <stdexcept>
 #include <memory>
