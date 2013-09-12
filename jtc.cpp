@@ -782,7 +782,7 @@ private:
 
     return_t variable() {
         expect(IDENTIFIER);
-        std::shared_ptr<Variable<Iter,R,F>> node(new Variable<Iter,R,F>);
+        std::shared_ptr<Variable<Iter,R,F>> node = std::make_shared<Variable<Iter,R,F>>();
         node->begin = accepted;
         node->end = accepted+1;
         node->name = R(accepted->begin, accepted->end);
@@ -791,7 +791,7 @@ private:
 
     return_t field_name() {
         expect(IDENTIFIER);
-        std::shared_ptr<FieldName<Iter,R,F>> node(new FieldName<Iter,R,F>);
+        std::shared_ptr<FieldName<Iter,R,F>> node = std::make_shared<FieldName<Iter,R,F>>();
         node->begin = accepted;
         node->end = accepted+1;
         node->name = R(accepted->begin, accepted->end);
@@ -799,7 +799,7 @@ private:
     }
 
     return_t identifier_list() {
-        std::shared_ptr<IdentifierList<Iter,R,F>> node(new IdentifierList<Iter,R,F>());
+        std::shared_ptr<IdentifierList<Iter,R,F>> node = std::make_shared<IdentifierList<Iter,R,F>>();
         node->begin = i;
         expect(LEFT_PAREN);
         while(!accept(RIGHT_PAREN)) {
@@ -812,7 +812,7 @@ private:
     }
 
     return_t function() {
-        std::shared_ptr<Function<Iter,R,F>> node(new Function<Iter,R,F>());
+        std::shared_ptr<Function<Iter,R,F>> node = std::make_shared<Function<Iter,R,F>>();
         node->begin = i;
         expect(FUNCTION);
         node->children[0] = identifier_list();
@@ -822,7 +822,7 @@ private:
     }
 
     return_t parse_expression() {
-        std::shared_ptr<ParseExpression<Iter,R,F>> node(new ParseExpression<Iter,R,F>());
+        std::shared_ptr<ParseExpression<Iter,R,F>> node = std::make_shared<ParseExpression<Iter,R,F>>();
         node->begin = i;
         expect(PARSE_EXPRESSION);
         expect(LEFT_PAREN);
@@ -833,7 +833,7 @@ private:
     }
 
     return_t parse_statement() {
-        std::shared_ptr<ParseStatement<Iter,R,F>> node(new ParseStatement<Iter,R,F>());
+        std::shared_ptr<ParseStatement<Iter,R,F>> node = std::make_shared<ParseStatement<Iter,R,F>>();
         node->begin = i;
         expect(PARSE_STATEMENT);
         expect(LEFT_PAREN);
@@ -844,7 +844,7 @@ private:
     }
 
     return_t tree() {
-        std::shared_ptr<Tree<Iter,R,F>> node(new Tree<Iter,R,F>());
+        std::shared_ptr<Tree<Iter,R,F>> node = std::make_shared<Tree<Iter,R,F>>();
         node->begin = i;
         if(accept(EXPRESSION)) {
             expect(LEFT_PAREN);
@@ -861,7 +861,7 @@ private:
     }
 
     return_t root() {
-        std::shared_ptr<Root<Iter,R,F>> node(new Root<Iter,R,F>());
+        std::shared_ptr<Root<Iter,R,F>> node = std::make_shared<Root<Iter,R,F>>();
         node->begin = i;
         expect(ROOT);
         if(accept(LEFT_PAREN)) {
@@ -873,7 +873,7 @@ private:
     }
 
     return_t eval() {
-        std::shared_ptr<Eval<Iter,R,F>> node(new Eval<Iter,R,F>);
+        std::shared_ptr<Eval<Iter,R,F>> node = std::make_shared<Eval<Iter,R,F>>();
         node->begin = i;
         expect(EVAL);
         expect(LEFT_PAREN);
@@ -884,7 +884,7 @@ private:
     }
 
     return_t type() {
-        std::shared_ptr<Type<Iter,R,F>> node(new Type<Iter,R,F>());
+        std::shared_ptr<Type<Iter,R,F>> node = std::make_shared<Type<Iter,R,F>>();
         node->begin = i;
         expect(TYPE);
         if(accept(LEFT_PAREN)) {
@@ -896,7 +896,7 @@ private:
     }
 
     return_t size() {
-        std::shared_ptr<Size<Iter,R,F>> node(new Size<Iter,R,F>());
+        std::shared_ptr<Size<Iter,R,F>> node = std::make_shared<Size<Iter,R,F>>();
         node->begin = i;
         expect(SIZE);
         if(accept(LEFT_PAREN)) {
@@ -908,7 +908,7 @@ private:
     }
 
     return_t table_initializer() {
-        std::shared_ptr<TableInitializer<Iter,R,F>> node(new TableInitializer<Iter,R,F>);
+        std::shared_ptr<TableInitializer<Iter,R,F>> node = std::make_shared<TableInitializer<Iter,R,F>>();
         node->begin = i;
         expect(LEFT_BRACE);
         while(!accept(RIGHT_BRACE)) {
@@ -921,7 +921,7 @@ private:
     }
 
     return_t array_initializer() {
-        std::shared_ptr<ArrayInitializer<Iter,R,F>> node(new ArrayInitializer<Iter,R,F>);
+        std::shared_ptr<ArrayInitializer<Iter,R,F>> node = std::make_shared<ArrayInitializer<Iter,R,F>>();
         node->begin = i;
         expect(LEFT_BRACKET);
         while(!accept(RIGHT_BRACKET)) {
@@ -937,24 +937,24 @@ private:
         if (peek(IDENTIFIER) || peek(GLOBAL) || peek(LOCAL)) {
             return variable();
         } else if (accept(NUMBER)) {
-            std::shared_ptr<Constant<Iter,R,F>> node(new Constant<Iter,R,F>);
+            std::shared_ptr<Constant<Iter,R,F>> node = std::make_shared<Constant<Iter,R,F>>();
             node->begin = accepted;
             node->end = accepted+1;
             node->value = std::stod(std::string(accepted->begin, accepted->end));
             return std::move(node);
         } else if (accept(NIL)) {
-            std::shared_ptr<Nil<Iter,R,F>> node(new Nil<Iter,R,F>);
+            std::shared_ptr<Nil<Iter,R,F>> node = std::make_shared<Nil<Iter,R,F>>();
             node->begin = accepted;
             node->end = accepted+1;
             return std::move(node);
         } else if (accept(STRING)) {
-            std::shared_ptr<String<Iter,R,F>> node(new String<Iter,R,F>());
+            std::shared_ptr<String<Iter,R,F>> node = std::make_shared<String<Iter,R,F>>();
             node->begin = accepted;
             node->end = accepted+1;
             node->value = R(unescape(std::string(accepted->begin+1, accepted->end-1)));
             return std::move(node);
         } else if (accept(LEFT_PAREN)) {
-            std::shared_ptr<Parens<Iter,R,F>> node(new Parens<Iter,R,F>());
+            std::shared_ptr<Parens<Iter,R,F>> node = std::make_shared<Parens<Iter,R,F>>();
             node->begin = accepted;
             node->children[0] = expression();
             expect(RIGHT_PAREN);
@@ -1018,7 +1018,7 @@ private:
                     node->end = accepted+1;
                     left = std::move(node);
                 } else {
-                    std::shared_ptr<FieldAccess<Iter,R,F>> node(new FieldAccess<Iter,R,F>());
+                    std::shared_ptr<FieldAccess<Iter,R,F>> node = std::make_shared<FieldAccess<Iter,R,F>>();
                     node->begin = from;
                     node->children[0] = std::move(left);
                     node->children[1] = std::move(right);
@@ -1051,7 +1051,7 @@ private:
                     node->end = accepted+1;
                     left = std::move(node);
                 } else if(accept(LEFT_PAREN)) {
-                    std::shared_ptr<MemberCall<Iter,R,F>> node(new MemberCall<Iter,R,F>());
+                    std::shared_ptr<MemberCall<Iter,R,F>> node = std::make_shared<MemberCall<Iter,R,F>>();
                     node->begin = from;
                     node->children.push_back(std::move(left));
                     node->children.push_back(std::move(right));
@@ -1063,7 +1063,7 @@ private:
                     node->end = accepted+1;
                     left = std::move(node);
                 } else {
-                    std::shared_ptr<FieldAccess<Iter,R,F>> node(new FieldAccess<Iter,R,F>());
+                    std::shared_ptr<FieldAccess<Iter,R,F>> node = std::make_shared<FieldAccess<Iter,R,F>>();
                     node->begin = from;
                     node->children[0] = std::move(left);
                     node->children[1] = std::move(right);
@@ -1071,7 +1071,7 @@ private:
                     left = std::move(node);
                 }
             } else if(accept(LEFT_PAREN)) {
-                std::shared_ptr<Call<Iter,R,F>> node(new Call<Iter,R,F>());
+                std::shared_ptr<Call<Iter,R,F>> node = std::make_shared<Call<Iter,R,F>>();
                 node->begin = from;
                 node->children.push_back(std::move(left));
                 while(!accept(RIGHT_PAREN)) {
@@ -1197,7 +1197,7 @@ private:
         Iter from = i;
         return_t left = equality_expression();
         if(accept(LOGICAL_AND)) {
-            std::shared_ptr<LogicalAndExpression<Iter,R,F>> node(new LogicalAndExpression<Iter,R,F>);
+            std::shared_ptr<LogicalAndExpression<Iter,R,F>> node = std::make_shared<LogicalAndExpression<Iter,R,F>>();
             node->begin = from;
             node->children[0] = std::move(left);
             node->children[1] = equality_expression();
@@ -1212,7 +1212,7 @@ private:
         Iter from = i;
         return_t left = logical_and_expression();
         if(accept(LOGICAL_OR)) {
-            std::shared_ptr<LogicalOrExpression<Iter,R,F>> node(new LogicalOrExpression<Iter,R,F>);
+            std::shared_ptr<LogicalOrExpression<Iter,R,F>> node = std::make_shared<LogicalOrExpression<Iter,R,F>>();
             node->begin = from;
             node->children[0] = std::move(left);
             node->children[1] = logical_and_expression();
@@ -1273,7 +1273,7 @@ private:
     }
 
     return_t initializer_assignment_expression() {
-        std::shared_ptr<InitializerAssignmentExpression<Iter,R,F>> node(new InitializerAssignmentExpression<Iter,R,F>);
+        std::shared_ptr<InitializerAssignmentExpression<Iter,R,F>> node = std::make_shared<InitializerAssignmentExpression<Iter,R,F>>();
         node->begin = i;
         node->children.push_back(logical_or_expression());
         if(accept(EQUAL)) {
@@ -1288,7 +1288,7 @@ private:
     }
 
     return_t block() {
-        std::shared_ptr<Block<Iter,R,F>> node(new Block<Iter,R,F>);
+        std::shared_ptr<Block<Iter,R,F>> node = std::make_shared<Block<Iter,R,F>>();
         node->begin = i;
         expect(LEFT_BRACE);
         node->children[0] = statement_list();
@@ -1298,7 +1298,7 @@ private:
     }
 
     return_t if_statement() {
-        std::shared_ptr<IfStatement<Iter,R,F>> node(new IfStatement<Iter,R,F>);
+        std::shared_ptr<IfStatement<Iter,R,F>> node = std::make_shared<IfStatement<Iter,R,F>>();
         node->begin = i;
         expect(IF);
         expect(LEFT_PAREN);
@@ -1313,7 +1313,7 @@ private:
     }
 
     return_t while_statement() {
-        std::shared_ptr<WhileStatement<Iter,R,F>> node(new WhileStatement<Iter,R,F>);
+        std::shared_ptr<WhileStatement<Iter,R,F>> node = std::make_shared<WhileStatement<Iter,R,F>>();
         node->begin = i;
         expect(WHILE);
         expect(LEFT_PAREN);
@@ -1325,7 +1325,7 @@ private:
     }
 
     return_t nop() {
-        std::shared_ptr<Nop<Iter,R,F>> node(new Nop<Iter,R,F>);
+        std::shared_ptr<Nop<Iter,R,F>> node = std::make_shared<Nop<Iter,R,F>>();
         node->begin = i;
         node->end = i;
         return std::move(node);
@@ -1336,7 +1336,7 @@ private:
         expect(FOR);
         expect(LEFT_PAREN);
         if(peek(IDENTIFIER) && (peek(COMMA, 1) || peek(COLON, 1))) {
-            std::shared_ptr<ForEachStatement<Iter,R,F>> node(new ForEachStatement<Iter,R,F>);
+            std::shared_ptr<ForEachStatement<Iter,R,F>> node = std::make_shared<ForEachStatement<Iter,R,F>>();
             node->begin = from;
             node->children.push_back(field_name());
             if(accept(COMMA)) {
@@ -1349,7 +1349,7 @@ private:
             node->end = accepted+1;
             return std::move(node);
         } else {
-            std::shared_ptr<ForStatement<Iter,R,F>> node(new ForStatement<Iter,R,F>);
+            std::shared_ptr<ForStatement<Iter,R,F>> node = std::make_shared<ForStatement<Iter,R,F>>();
             node->begin = from;
             if(accept(SEMICOLON)) {
                 node->children.push_back(nop());
@@ -1376,7 +1376,7 @@ private:
     }
 
     return_t break_statement() {
-        std::shared_ptr<BreakStatement<Iter,R,F>> node(new BreakStatement<Iter,R,F>);
+        std::shared_ptr<BreakStatement<Iter,R,F>> node = std::make_shared<BreakStatement<Iter,R,F>>();
         node->begin = i;
         expect(BREAK);
         accept(SEMICOLON);
@@ -1385,7 +1385,7 @@ private:
     }
 
     return_t continue_statement() {
-        std::shared_ptr<ContinueStatement<Iter,R,F>> node(new ContinueStatement<Iter,R,F>);
+        std::shared_ptr<ContinueStatement<Iter,R,F>> node = std::make_shared<ContinueStatement<Iter,R,F>>();
         node->begin = i;
         expect(CONTINUE);
         accept(SEMICOLON);
@@ -1394,7 +1394,7 @@ private:
     }
 
     return_t return_statement() {
-        std::shared_ptr<ReturnStatement<Iter,R,F>> node(new ReturnStatement<Iter,R,F>);
+        std::shared_ptr<ReturnStatement<Iter,R,F>> node = std::make_shared<ReturnStatement<Iter,R,F>>();
         node->begin = i;
         expect(RETURN);
         if(accept(SEMICOLON)) {
@@ -1423,7 +1423,7 @@ private:
         } else if (peek(BREAK)) {
             return break_statement();
         } else {
-            std::shared_ptr<ExpressionStatement<Iter,R,F>> node(new ExpressionStatement<Iter,R,F>);
+            std::shared_ptr<ExpressionStatement<Iter,R,F>> node = std::make_shared<ExpressionStatement<Iter,R,F>>();
             node->begin = i;
             node->children[0] = expression();
             accept(SEMICOLON);
@@ -1433,7 +1433,7 @@ private:
     }
 
     return_t statement_list() {
-        std::shared_ptr<StatementList<Iter,R,F>> node(new StatementList<Iter,R,F>);
+        std::shared_ptr<StatementList<Iter,R,F>> node = std::make_shared<StatementList<Iter,R,F>>();
         node->begin = i;
         while(!end_of_input() && !peek(RIGHT_BRACE)) {
             node->children.push_back(statement());
