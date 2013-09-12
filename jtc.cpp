@@ -2011,19 +2011,19 @@ struct Interpreter {
 
     R operator()(UnaryPlusExpression<Iter,R,F> &node) {
         R operand = node.children[0]->accept(*this);
-        if(operand.type() == R::NUMBER) error("invalid operand to '+'.", node);
+        if(operand.type() != R::NUMBER) error("invalid operand to '+'.", node);
         return operand;
     }
 
     R operator()(UnaryMinusExpression<Iter,R,F> &node) {
         R operand = node.children[0]->accept(*this);
-        if(operand.type() == R::NUMBER) error("invalid operand to '-'.", node);
+        if(operand.type() != R::NUMBER) error("invalid operand to '-'.", node);
         return R(-operand.number());
     }
 
     R operator()(UnaryNotExpression<Iter,R,F> &node) {
         R operand = node.children[0]->accept(*this);
-        if(operand.type() == R::NUMBER) error("invalid operand to '!'.", node);
+        if(operand.type() != R::NUMBER) error("invalid operand to '!'.", node);
         return R(operand.number()==0.0?1.0:0.0);
     }
 
