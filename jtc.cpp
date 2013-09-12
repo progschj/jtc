@@ -1379,7 +1379,7 @@ private:
         std::shared_ptr<BreakStatement<Iter,R,F>> node(new BreakStatement<Iter,R,F>);
         node->begin = i;
         expect(BREAK);
-        expect(SEMICOLON);
+        accept(SEMICOLON);
         node->end = accepted+1;
         return std::move(node);
     }
@@ -1388,7 +1388,7 @@ private:
         std::shared_ptr<ContinueStatement<Iter,R,F>> node(new ContinueStatement<Iter,R,F>);
         node->begin = i;
         expect(CONTINUE);
-        expect(SEMICOLON);
+        accept(SEMICOLON);
         node->end = accepted+1;
         return std::move(node);
     }
@@ -1402,7 +1402,7 @@ private:
             return std::move(node);
         }
         node->children.push_back(expression());
-        expect(SEMICOLON);
+        accept(SEMICOLON);
         node->end = accepted+1;
         return std::move(node);
     }
@@ -1426,7 +1426,7 @@ private:
             std::shared_ptr<ExpressionStatement<Iter,R,F>> node(new ExpressionStatement<Iter,R,F>);
             node->begin = i;
             node->children[0] = expression();
-            expect(SEMICOLON);
+            accept(SEMICOLON);
             node->end = accepted+1;        
             return std::move(node);
         }
