@@ -673,6 +673,11 @@ struct BreakStatement : public Nullary<Iter,R,F> {
 };
 
 template<class Iter, class R, class F>
+struct ExpressionStatement : public Unary<Iter,R,F> {
+    virtual R accept(F &f) { return f(*this); }
+};
+
+template<class Iter, class R, class F>
 struct BuiltinFunction : public Nullary<Iter,R,F> {
     virtual R accept(F &f) { return f(*this); }
     std::function<void(std::vector<R>&)> function;
@@ -1418,8 +1423,11 @@ private:
         } else if (peek(BREAK)) {
             return break_statement();
         } else {
-            return_t node = expression();
+            std::shared_ptr<ExpressionStatement<Iter,R,F>> node(new ExpressionStatement<Iter,R,F>);
+            node->begin = i;
+            node->children[0] = expression();
             expect(SEMICOLON);
+            node->end = accepted+1;        
             return std::move(node);
         }
     }
@@ -1747,6 +1755,10 @@ struct Interpreter {
     }
 
     R operator()(Parens<Iter,R,F> &node) {
+        return node.children[0]->accept(*this);
+    }
+
+    R operator()(ExpressionStatement<Iter,R,F> &node) {
         return node.children[0]->accept(*this);
     }
 
