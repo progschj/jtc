@@ -805,7 +805,7 @@ private:
         while(!accept(RIGHT_PAREN)) {
             node->children.push_back(field_name());
             if(!peek(RIGHT_PAREN))
-                expect(COMMA);
+                accept(COMMA);
         }
         node->end = accepted+1;
         return std::move(node);
@@ -914,7 +914,7 @@ private:
         while(!accept(RIGHT_BRACE)) {
             node->children.push_back(initializer_assignment_expression());
             if(!peek(RIGHT_BRACE))
-                expect(COMMA);
+                accept(COMMA);
         }
         node->end = accepted+1;
         return std::move(node);
@@ -927,7 +927,7 @@ private:
         while(!accept(RIGHT_BRACKET)) {
             node->children.push_back(logical_or_expression());
             if(!peek(RIGHT_BRACKET))
-                expect(COMMA);
+                accept(COMMA);
         }
         node->end = accepted+1;
         return std::move(node);
@@ -1058,7 +1058,7 @@ private:
                     while(!accept(RIGHT_PAREN)) {
                         node->children.push_back(expression());
                         if(!peek(RIGHT_PAREN))
-                            expect(COMMA);
+                            accept(COMMA);
                     }
                     node->end = accepted+1;
                     left = std::move(node);
@@ -1077,7 +1077,7 @@ private:
                 while(!accept(RIGHT_PAREN)) {
                     node->children.push_back(expression());
                     if(!peek(RIGHT_PAREN))
-                        expect(COMMA);
+                        accept(COMMA);
                 }
                 node->end = accepted+1;
                 left = std::move(node);
